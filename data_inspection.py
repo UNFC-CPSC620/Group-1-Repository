@@ -23,9 +23,16 @@ def inspect_dataset(df):
     print("\nDuplicate rows:")
     print(df.duplicated().sum())
 
+if "id" in df.columns:
+    print("Duplicate listing IDs:")
+    print(df["id"].duplicated().sum())
+    
+elif "listing_id" in df.columns:
+    print("Duplicate listing IDs:")
+    print(df["listing_id"].duplicated().sum())
+
     print("\nDataset preview:")
     print(df.head())
-
 
 if __name__ == "__main__":
     dataset = load_dataset()
