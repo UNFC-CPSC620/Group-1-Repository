@@ -1,13 +1,15 @@
 import pandas as pd
 from pathlib import Path
 
-def load_dataset(file_path="Airbnb_NYC.csv")
+
+def load_dataset(file_path="Airbnb_NYC.csv"):
     path = Path(file_path)
 
     if not path.exists():
         raise FileNotFoundError(f"Dataset not found: {file_path}")
 
     return pd.read_csv(path)
+
 
 def inspect_dataset(df):
     print("Dataset dimensions:")
@@ -23,16 +25,16 @@ def inspect_dataset(df):
     print("\nDuplicate rows:")
     print(df.duplicated().sum())
 
-if "id" in df.columns:
-    print("Duplicate listing IDs:")
-    print(df["id"].duplicated().sum())
-    
-elif "listing_id" in df.columns:
-    print("Duplicate listing IDs:")
-    print(df["listing_id"].duplicated().sum())
+    if "id" in df.columns:
+        print("Duplicate listing IDs:")
+        print(df["id"].duplicated().sum())
+    elif "listing_id" in df.columns:
+        print("Duplicate listing IDs:")
+        print(df["listing_id"].duplicated().sum())
 
     print("\nDataset preview:")
     print(df.head())
+
 
 if __name__ == "__main__":
     dataset = load_dataset()
