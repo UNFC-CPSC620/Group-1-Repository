@@ -1,52 +1,60 @@
+import tempfile
+import unittest
+from pathlib import Path
+
 import pandas as pd
-import pytest
 
 from data_loader import load_airbnb_data
 
 
-def test_returns_dataframe_from_str_path(tmp_path):
-    csv = tmp_path / "listings.csv"
-    csv.write_text("id,price\n1,100\n2,200\n")
-    df = load_airbnb_data(str(csv))
-    assert isinstance(df, pd.DataFrame)
-    assert list(df.columns) == ["id", "price"]
-    assert len(df) == 2
+class TestLoadAirbnbData(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.folder = Path(self._tmp.name)
+
+    def write_file(self, name, text):
+        path = self.folder / name
+        path.write_text(text)
+        return path
+
+    def test_returns_dataframe_from_str_path(self):
+        path = self.write_file("listings.csv", "id,price\n1,100\n2,200\n")
+        df = load_airbnb_data(str(path))
+        self.assertIsInstance(df, pd.DataFrame)
+        self.assertEqual(list(df.columns), ["id", "price"])
+        self.assertEqual(len(df), 2)
+
+    def test_accepts_path_object(self):
+        path = self.write_file("listings.csv", "id,price\n1,100\n")
+        self.assertEqual(len(load_airbnb_data(path)), 1)
+
+    def test_missing_file_gives_clear_error(self):
+        with self.assertRaisesRegex(FileNotFoundError, "not found"):
+            load_airbnb_data(self.folder / "nope.csv")
+
+    def test_folder_gives_clear_error(self):
+        with self.assertRaisesRegex(ValueError, "folder"):
+            load_airbnb_data(self.folder)
+
+    def test_wrong_extension_gives_clear_error(self):
+        path = self.write_file("listings.txt", "id,price\n1,100\n")
+        with self.assertRaisesRegex(ValueError, "not a .csv"):
+            load_airbnb_data(path)
+
+    def test_empty_file_gives_clear_error(self):
+        path = self.write_file("empty.csv", "")
+        with self.assertRaisesRegex(ValueError, "empty"):
+            load_airbnb_data(path)
+
+    def test_non_text_path_type_gives_type_error(self):
+        with self.assertRaises(TypeError):
+            load_airbnb_data(123)
+
+    def test_has_docstring(self):
+        self.assertTrue(load_airbnb_data.__doc__)
+        self.assertIn("DataFrame", load_airbnb_data.__doc__)
 
 
-def test_accepts_path_object(tmp_path):
-    csv = tmp_path / "listings.csv"
-    csv.write_text("id,price\n1,100\n")
-    assert len(load_airbnb_data(csv)) == 1
-
-
-def test_missing_file_gives_clear_error(tmp_path):
-    with pytest.raises(FileNotFoundError, match="not found"):
-        load_airbnb_data(tmp_path / "nope.csv")
-
-
-def test_folder_gives_clear_error(tmp_path):
-    with pytest.raises(ValueError, match="folder"):
-        load_airbnb_data(tmp_path)
-
-
-def test_wrong_extension_gives_clear_error(tmp_path):
-    txt = tmp_path / "listings.txt"
-    txt.write_text("id,price\n1,100\n")
-    with pytest.raises(ValueError, match="not a .csv"):
-        load_airbnb_data(txt)
-
-
-def test_empty_file_gives_clear_error(tmp_path):
-    csv = tmp_path / "empty.csv"
-    csv.write_text("")
-    with pytest.raises(ValueError, match="empty"):
-        load_airbnb_data(csv)
-
-
-def test_non_text_path_type_gives_type_error():
-    with pytest.raises(TypeError):
-        load_airbnb_data(123)
-
-
-def test_has_docstring():
-    assert load_airbnb_data.__doc__ and "DataFrame" in load_airbnb_data.__doc__
+if __name__ == "__main__":
+    unittest.main()
