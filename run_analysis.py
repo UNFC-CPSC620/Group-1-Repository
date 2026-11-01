@@ -28,6 +28,11 @@ from summaries import summarize_listings
 PROJECT_DIR = Path(__file__).resolve().parent
 DEFAULT_DATASET = PROJECT_DIR / "Airbnb_NYC.csv"
 
+# Required by cleaning, listing summaries, pricing, availability and preview.
+REQUIRED_PIPELINE_COLUMNS = frozenset({
+    "id", "neighbourhood_group", "room_type", "price", "availability_365"
+})
+
 
 def run_pipeline(file_path: str | Path = DEFAULT_DATASET) -> dict:
     """Load, inspect and clean data, then return three families of summaries.
@@ -36,6 +41,12 @@ def run_pipeline(file_path: str | Path = DEFAULT_DATASET) -> dict:
     never modifies the original DataFrame or overwrites the source CSV.
     """
     raw = load_airbnb_data(file_path)
+    missing = REQUIRED_PIPELINE_COLUMNS.difference(raw.columns)
+    if missing:
+        raise ValueError(
+            "Missing required Airbnb columns: " + ", ".join(sorted(missing))
+        )
+
     inspection = inspect_dataset(raw)
     cleaned = clean_airbnb_data(raw)
     report = cleaning_report(raw, cleaned)
