@@ -68,6 +68,72 @@ python cleaning.py --input Airbnb_NYC.csv
 python cleaning.py --input Airbnb_NYC.csv --output cleaned_Airbnb_NYC.csv
 ```
 
+### Borough and Room-Type Summaries
+
+The `summaries.py` module generates reusable listing summaries
+using the cleaned NYC Airbnb dataset.
+
+From the repository root, run:
+
+```bash
+python summaries.py
+```
+
+The script automatically:
+
+1. Loads `Airbnb_NYC.csv`.
+2. Cleans the dataset using `clean_airbnb_data()` from `cleaning.py`.
+3. Removes duplicate listing IDs according to the cleaning policy.
+4. Standardizes recognized borough and room-type categories.
+5. Generates and displays four summary DataFrames:
+   - Listing counts by borough.
+   - Listing counts by room type.
+   - Listing counts by borough and room-type combination.
+   - Borough percentage distributions.
+
+Missing or unrecognized categories are excluded from the
+corresponding group calculations.
+
+The original CSV file is not modified.
+
+#### Reusing the Functions
+
+```python
+from data_loader import load_airbnb_data
+from cleaning import clean_airbnb_data
+from summaries import summarize_listings
+
+raw = load_airbnb_data("Airbnb_NYC.csv")
+cleaned = clean_airbnb_data(raw)
+
+results = summarize_listings(cleaned)
+
+print(results["by_borough"])
+print(results["by_room_type"])
+print(results["by_borough_and_room_type"])
+print(results["borough_percentages"])
+```
+
+#### Automated Tests
+
+Run the existing test suite:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The tests cover listing counts, borough percentages, missing
+categories, empty DataFrames, required columns, and preservation
+of the original input DataFrame.
+
+Related work:
+- Issue #17 — Borough and room-type user story.
+- Issue #18 — Summary implementation.
+- Issue #19 — Automated summary tests.
+- Issue #20 — Documentation and integration.
+- PR #23 — Summary functions and tests merged into main.
+- PR #38 — Automated tests merged into the implementation branch.
+
 **Run the summaries** with the reusable functions on the cleaned data:
 
 ```python
