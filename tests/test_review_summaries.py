@@ -1,3 +1,4 @@
+
 import unittest
 import pandas as pd
 
@@ -57,6 +58,8 @@ class TestReviewSummaries(unittest.TestCase):
 
     def test_negative_and_invalid_values(self):
         df = self.df.copy()
+
+        df["number_of_reviews"] = df["number_of_reviews"].astype(object)
         df["reviews_per_month"] = df["reviews_per_month"].astype(object)
 
         df.loc[0, "number_of_reviews"] = -5
