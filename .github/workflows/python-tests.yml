@@ -37,3 +37,6 @@ jobs:
         run: python cleaning.py --input Airbnb_NYC.csv
       - name: Validate integrated analytics pipeline
         run: python run_analysis.py
+
+      - name: Validate borough and room-type summaries
+        run: python summaries.py
