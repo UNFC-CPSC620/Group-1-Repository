@@ -1,13 +1,16 @@
 
 name: Python Cleaning Tests
 
+
 on:
   push:
     branches:
       - feature/8-clean-airbnb-data
+      - feature/30-airbnb-analytics-pipeline
   pull_request:
     branches:
       - main
+
 
 jobs:
   test:
