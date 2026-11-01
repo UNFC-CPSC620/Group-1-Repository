@@ -30,6 +30,7 @@ class TestReviewSummaries(unittest.TestCase):
         self.assertEqual(manhattan["average_reviews"], 5)
         self.assertEqual(manhattan["median_reviews"], 5)
         self.assertEqual(manhattan["valid_listing_count"], 2)
+        self.assertEqual(manhattan["missing_review_count"], 0)
 
     def test_reviews_by_room_type(self):
         result = summarize_reviews_by_room_type(self.df)
@@ -37,6 +38,22 @@ class TestReviewSummaries(unittest.TestCase):
 
         self.assertEqual(private["average_reviews"], 15)
         self.assertEqual(private["average_reviews_per_month"], 3)
+        self.assertEqual(private["valid_review_count"], 2)
+        self.assertEqual(private["missing_review_count"], 0)
+
+    def test_missing_review_values(self):
+        result = summarize_reviews_by_borough(self.df)
+        brooklyn = result[result["borough"] == "Brooklyn"].iloc[0]
+
+        self.assertEqual(brooklyn["valid_listing_count"], 1)
+        self.assertEqual(brooklyn["missing_review_count"], 1)
+
+    def test_missing_monthly_rates(self):
+        result = summarize_reviews_by_room_type(self.df)
+        shared = result[result["room_type"] == "Shared room"].iloc[0]
+
+        self.assertEqual(shared["valid_monthly_rate_count"], 0)
+        self.assertEqual(shared["missing_monthly_rate_count"], 1)
 
     def test_negative_and_invalid_values(self):
         df = self.df.copy()
@@ -52,8 +69,8 @@ class TestReviewSummaries(unittest.TestCase):
         result = summarize_reviews_by_borough(self.df)
         manhattan = result[result["borough"] == "Manhattan"].iloc[0]
 
-        self.assertEqual(manhattan["average_reviews"], 5)
         self.assertEqual(manhattan["valid_listing_count"], 2)
+        self.assertEqual(manhattan["average_reviews"], 5)
 
     def test_empty_dataframe(self):
         empty = self.df.iloc[0:0]
