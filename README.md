@@ -2,7 +2,19 @@
 
 CPSC 620, Group 1. A small, modular Python toolkit that loads the NYC Airbnb listings dataset (`Airbnb_NYC.csv`), cleans it, and returns ready-to-use summary tables (pandas DataFrames) for pricing, availability, boroughs and room types. There is no dashboard or UI; the functions are designed to be reused by one later.
 
-> **Draft note for the author:** items in `[BRACKETS]` depend on pull requests that are not on `main` yet (pricing, availability, borough/room-type, pipeline). Fill them in after those merge, then delete this note.
+
+> **Integration status (November 1, 2026):**
+> Borough and room-type summary functions and automated
+> tests have been merged into `main` through PR #23,
+> following the integration of PR #38 into the feature branch.
+>
+> The standalone execution instructions are being finalized
+> under Issue #20.
+>
+> Pricing, availability, and the complete analytics pipeline
+> are tracked separately. Their integration status must be
+> confirmed before the corresponding commands are used.
+
 
 ## Objectives
 
@@ -68,6 +80,72 @@ python cleaning.py --input Airbnb_NYC.csv
 python cleaning.py --input Airbnb_NYC.csv --output cleaned_Airbnb_NYC.csv
 ```
 
+### Borough and Room-Type Summaries
+
+The `summaries.py` module generates reusable listing summaries
+using the cleaned NYC Airbnb dataset.
+
+From the repository root, run:
+
+```bash
+python summaries.py
+```
+
+The script automatically:
+
+1. Loads `Airbnb_NYC.csv`.
+2. Cleans the dataset using `clean_airbnb_data()` from `cleaning.py`.
+3. Removes duplicate listing IDs according to the cleaning policy.
+4. Standardizes recognized borough and room-type categories.
+5. Generates and displays four summary DataFrames:
+   - Listing counts by borough.
+   - Listing counts by room type.
+   - Listing counts by borough and room-type combination.
+   - Borough percentage distributions.
+
+Missing or unrecognized categories are excluded from the
+corresponding group calculations.
+
+The original CSV file is not modified.
+
+#### Reusing the Functions
+
+```python
+from data_loader import load_airbnb_data
+from cleaning import clean_airbnb_data
+from summaries import summarize_listings
+
+raw = load_airbnb_data("Airbnb_NYC.csv")
+cleaned = clean_airbnb_data(raw)
+
+results = summarize_listings(cleaned)
+
+print(results["by_borough"])
+print(results["by_room_type"])
+print(results["by_borough_and_room_type"])
+print(results["borough_percentages"])
+```
+
+#### Automated Tests
+
+Run the existing test suite:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The tests cover listing counts, borough percentages, missing
+categories, empty DataFrames, required columns, and preservation
+of the original input DataFrame.
+
+Related work:
+- Issue #17 — Borough and room-type user story.
+- Issue #18 — Summary implementation.
+- Issue #19 — Automated summary tests.
+- Issue #20 — Documentation and integration.
+- PR #23 — Summary functions and tests merged into main.
+- PR #38 — Automated tests merged into the implementation branch.
+
 **Run the summaries** with the reusable functions on the cleaned data:
 
 ```python
@@ -117,7 +195,9 @@ All tests should report `OK`. GitHub Actions (`python-tests.yml`) runs the same 
 
 ## Output format
 
-Every summary function returns a `pandas.DataFrame` with one row per group (borough or room type), sorted by the number of valid listings, largest first. Statistics are rounded to 2 decimals. If there is nothing valid to summarise, an empty DataFrame with the same columns is returned.
+Summary functions return reusable pandas DataFrames with documented columns. Listing-count summaries are generally ordered by frequency, while borough and room-type combination summaries use a defined multi-column sort order.
+
+The `summarize_listings()` function returns a dictionary containing four summary DataFrames. Borough percentages are rounded to two decimal places. Empty datasets produce appropriately structured empty DataFrames.
 
 **Price by borough** (`summarize_prices_by_borough`, USD per night):
 

@@ -107,3 +107,24 @@ def summarize_listings(df):
         ),
         "borough_percentages": summarize_borough_percentages(df),
     }
+
+
+if __name__ == "__main__":
+    from pathlib import Path
+    from cleaning import clean_airbnb_data
+
+    dataset_path = Path(__file__).resolve().parent / "Airbnb_NYC.csv"
+
+    raw_df = pd.read_csv(dataset_path, low_memory=False)
+    cleaned_df = clean_airbnb_data(raw_df)
+
+    results = summarize_listings(cleaned_df)
+
+    print("NYC Airbnb Borough and Room-Type Summaries")
+    print(f"Original listings: {len(raw_df)}")
+    print(f"Cleaned listings: {len(cleaned_df)}")
+
+    for name, summary in results.items():
+        print(f"\n{name.replace('_', ' ').title()}")
+        print(summary.to_string(index=False))
+
