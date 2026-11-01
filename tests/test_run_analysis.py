@@ -111,6 +111,60 @@ class TestAnalyticsPipeline(unittest.TestCase):
             self.results["cleaned_data"],
         )
 
+    def test_individual_group_counts_match_cleaned_data(self):
+        # Verify individual borough counts.
+        expected_borough = (
+            self.cleaned["neighbourhood_group"]
+            .value_counts()
+            .to_dict()
+        )
+
+        actual_borough = (
+            self.summaries["by_borough"]
+            .set_index("borough")["listing_count"]
+            .to_dict()
+        )
+
+        self.assertEqual(actual_borough, expected_borough)
+
+        # Verify individual room-type counts.
+        expected_room = (
+            self.cleaned["room_type"]
+            .value_counts()
+            .to_dict()
+        )
+
+        actual_room = (
+            self.summaries["by_room_type"]
+            .set_index("room_type")["listing_count"]
+            .to_dict()
+        )
+
+        self.assertEqual(actual_room, expected_room)
+
+        # Verify each borough and room-type combination.
+        expected_combinations = (
+            self.cleaned
+            .groupby(
+                ["neighbourhood_group", "room_type"],
+                observed=True
+            )
+            .size()
+            .to_dict()
+        )
+
+        actual_combinations = {
+            (row.borough, row.room_type): row.listing_count
+            for row in self.summaries[
+                "by_borough_and_room_type"
+            ].itertuples(index=False)
+        }
+
+        self.assertEqual(
+            actual_combinations,
+            expected_combinations
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
