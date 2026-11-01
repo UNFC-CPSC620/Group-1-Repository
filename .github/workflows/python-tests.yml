@@ -32,3 +32,6 @@ jobs:
 
       - name: Validate full Airbnb dataset
         run: python cleaning.py --input Airbnb_NYC.csv
+
+      - name: Validate borough and room-type summaries
+        run: python summaries.py
