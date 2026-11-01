@@ -2,7 +2,19 @@
 
 CPSC 620, Group 1. A small, modular Python toolkit that loads the NYC Airbnb listings dataset (`Airbnb_NYC.csv`), cleans it, and returns ready-to-use summary tables (pandas DataFrames) for pricing, availability, boroughs and room types. There is no dashboard or UI; the functions are designed to be reused by one later.
 
-> **Draft note for the author:** items in `[BRACKETS]` depend on pull requests that are not on `main` yet (pricing, availability, borough/room-type, pipeline). Fill them in after those merge, then delete this note.
+
+> **Integration status (November 1, 2026):**
+> Borough and room-type summary functions and automated
+> tests have been merged into `main` through PR #23,
+> following the integration of PR #38 into the feature branch.
+>
+> The standalone execution instructions are being finalized
+> under Issue #20.
+>
+> Pricing, availability, and the complete analytics pipeline
+> are tracked separately. Their integration status must be
+> confirmed before the corresponding commands are used.
+
 
 ## Objectives
 
@@ -183,7 +195,9 @@ All tests should report `OK`. GitHub Actions (`python-tests.yml`) runs the same 
 
 ## Output format
 
-Every summary function returns a `pandas.DataFrame` with one row per group (borough or room type), sorted by the number of valid listings, largest first. Statistics are rounded to 2 decimals. If there is nothing valid to summarise, an empty DataFrame with the same columns is returned.
+Summary functions return reusable pandas DataFrames with documented columns. Listing-count summaries are generally ordered by frequency, while borough and room-type combination summaries use a defined multi-column sort order.
+
+The `summarize_listings()` function returns a dictionary containing four summary DataFrames. Borough percentages are rounded to two decimal places. Empty datasets produce appropriately structured empty DataFrames.
 
 **Price by borough** (`summarize_prices_by_borough`, USD per night):
 
