@@ -1,10 +1,23 @@
+
 import pandas as pd
 
 from cleaning import clean_airbnb_data
 
 
 def summarize_prices_by_borough(cleaned_df):
-    """Return valid listing counts, average prices, and median prices by borough."""
+    """
+    Return valid listing counts, average prices, and median prices by borough.
+
+    Parameters
+    ----------
+    cleaned_df : pandas.DataFrame
+        Cleaned Airbnb dataset containing neighbourhood_group and price.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Borough-level pricing statistics.
+    """
     if not isinstance(cleaned_df, pd.DataFrame):
         raise TypeError("cleaned_df must be a pandas DataFrame")
 
@@ -16,6 +29,7 @@ def summarize_prices_by_borough(cleaned_df):
             f"Missing required columns: {', '.join(sorted(missing))}"
         )
 
+    # Exclude missing categories and invalid prices.
     valid = cleaned_df.loc[
         cleaned_df["neighbourhood_group"].notna()
         & cleaned_df["price"].notna()
@@ -23,7 +37,8 @@ def summarize_prices_by_borough(cleaned_df):
         ["neighbourhood_group", "price"],
     ]
 
-    return (
+    # Calculate pricing statistics for each borough.
+    result = (
         valid.groupby("neighbourhood_group")["price"]
         .agg(
             valid_listing_count="count",
@@ -36,9 +51,23 @@ def summarize_prices_by_borough(cleaned_df):
         .round({"average_price": 2, "median_price": 2})
     )
 
+    return result
+
 
 def summarize_prices_by_room_type(cleaned_df):
-    """Return valid listing counts, average prices, and median prices by room type."""
+    """
+    Return valid listing counts, average prices, and median prices by room type.
+
+    Parameters
+    ----------
+    cleaned_df : pandas.DataFrame
+        Cleaned Airbnb dataset containing room_type and price.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Room-type-level pricing statistics.
+    """
     if not isinstance(cleaned_df, pd.DataFrame):
         raise TypeError("cleaned_df must be a pandas DataFrame")
 
@@ -50,6 +79,7 @@ def summarize_prices_by_room_type(cleaned_df):
             f"Missing required columns: {', '.join(sorted(missing))}"
         )
 
+    # Exclude missing categories and invalid prices.
     valid = cleaned_df.loc[
         cleaned_df["room_type"].notna()
         & cleaned_df["price"].notna()
@@ -57,7 +87,8 @@ def summarize_prices_by_room_type(cleaned_df):
         ["room_type", "price"],
     ]
 
-    return (
+    # Calculate pricing statistics for each room type.
+    result = (
         valid.groupby("room_type")["price"]
         .agg(
             valid_listing_count="count",
@@ -69,9 +100,19 @@ def summarize_prices_by_room_type(cleaned_df):
         .round({"average_price": 2, "median_price": 2})
     )
 
+    return result
+
 
 def generate_pricing_summaries(raw_df):
-    """Clean the raw Airbnb dataset and return reusable pricing summary DataFrames."""
+    """
+    Clean the raw Airbnb dataset and return pricing summary DataFrames.
+
+    Returns
+    -------
+    dict
+        Contains cleaned data, borough pricing statistics,
+        and room-type pricing statistics.
+    """
     cleaned_df = clean_airbnb_data(raw_df)
 
     return {
@@ -85,7 +126,9 @@ if __name__ == "__main__":
     from pathlib import Path
 
     dataset_path = Path(__file__).resolve().parent / "Airbnb_NYC.csv"
+
     raw_df = pd.read_csv(dataset_path, low_memory=False)
+
     results = generate_pricing_summaries(raw_df)
 
     print("\nPricing summary by borough:")
