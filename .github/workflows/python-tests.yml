@@ -1,13 +1,16 @@
 
 name: Python Cleaning Tests
 
+
 on:
   push:
     branches:
       - feature/8-clean-airbnb-data
+      - feature/30-airbnb-analytics-pipeline
   pull_request:
     branches:
       - main
+
 
 jobs:
   test:
@@ -32,6 +35,8 @@ jobs:
 
       - name: Validate full Airbnb dataset
         run: python cleaning.py --input Airbnb_NYC.csv
+      - name: Validate integrated analytics pipeline
+        run: python run_analysis.py
 
       - name: Validate borough and room-type summaries
         run: python summaries.py
