@@ -62,8 +62,12 @@ def parse_count(values: pd.Series, suffix: str | None = None) -> pd.Series:
         text = text.str.replace(r"(?i)\s*nights?$", "", regex=True)
     elif suffix == "days":
         text = text.str.replace(r"(?i)\s*days?$", "", regex=True)
-    is_whole_number = text.str.fullmatch(r"\d+").fillna(False)
+
+    is_whole_number = text.str.fullmatch(
+        r"\d+(?:\.0+)?"
+    ).fillna(False)
     return pd.to_numeric(text.where(is_whole_number), errors="coerce").astype("Int64")
+
 
 
 def standardize_category(values: pd.Series, labels: dict[str, str]) -> pd.Series:
