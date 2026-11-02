@@ -71,9 +71,19 @@ class TestAvailabilityAndReviewSummaries(unittest.TestCase):
                          ['neighbourhood_group','valid_listings','mean_availability','median_availability'])
         self.assertEqual(list(availability_stats_by_room_type(empty).columns),
                          ['room_type','valid_listings','mean_availability'])
-        self.assertEqual(list(summarize_reviews_by_borough(empty).columns),
-                         ['borough','average_reviews','median_reviews','valid_listing_count'])
+        
+        self.assertEqual(
+            list(summarize_reviews_by_borough(empty).columns),
+            [
+                "borough",
+                "average_reviews",
+                "median_reviews",
+                "valid_listing_count",
+                "missing_review_count",
+            ],
+        )
         self.assertTrue(summarize_reviews_by_room_type(empty).empty)
+
 
     def test_missing_columns_and_invalid_types(self):
         with self.assertRaises(KeyError):
